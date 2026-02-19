@@ -1,6 +1,19 @@
-## The Stable Marriage Problem
+## Stable Marriage Problem
 
-### This repository implements a solution to the stable marriage problem using the Object-Oriented paradigm and the Gale-Shapley algorithm
+A comparative implementation of the **Stable Marriage problem** across four programming paradigms, exploring how language design shapes problem-solving approaches.
+
+> The implementations use the Gale-Shapley algorithm.
+
+---
+
+## Implementations
+
+| Paradigm | Language |
+|----------|----------|
+| Object-Oriented | Java |
+| Concurrent | Go |
+| Logic | Prolog |
+| Functional | Scheme |
 
 ---
 

@@ -1,3 +1,8 @@
+// Project CSI2120/CSI2520
+// Winter 2026
+
+// Completed by Roman Solomakha St. No. 300422752 and Daniela Bordeianu St. No. 300435411
+
 package main
 
 import (
@@ -23,7 +28,53 @@ type Program struct {
 	name       string
 	nPositions  int 		// number of positions available (quota)
 	rol []int  				// program rank order list
-	// TO ADD: a data structure for the selected resident IDs
+	// TO ADD: a data structure for the selected resident IDs 
+	selectedResidents []*Resident // ADDED 
+}
+
+// ADDED - Find resident's rank
+func (p Program) rank(resID int) int{
+	for i, ID := range p.rol {
+		if ID == resID {
+			return i // returns resident's position in program's ROL, 0 being the most preferred
+		}
+	}
+	return -1 // returns -1 if resident not in program's ROL
+}
+
+// ADDED - Find least preferred selected resident
+func (p Program) leastPreferredPos() int{
+	worstRank := 0 // higher rank = worse, starting worst rank = 0
+	worstResident := -1 // remembering worst resident
+	for i, r := range p.selectedResidents { // checking every selected resident 
+		if p.rank(r.residentID) > worstRank { // only if the residents rank is worse than current worst
+			worstRank = p.rank(r.residentID)
+			worstResident = i
+		}
+	}
+	return worstResident // returns position of worst ranked resident in selectedResidents
+}
+
+// ADDED
+func (p *Program) addResident(res *Resident) *Resident { // the * in *Program took me an hour to bugfix help
+	rank := p.rank(res.residentID)
+	if rank != -1 { // chechking for member
+		if len(p.selectedResidents) < p.nPositions{ // if has not reached quota
+			p.selectedResidents = append(p.selectedResidents, res) 
+			res.matchedProgram = p.programID
+			return nil // took free place
+		} else { // if has reached quota
+			lpos := p.leastPreferredPos()
+			lres := p.selectedResidents[lpos]
+			if rank < p.rank(lres.residentID){
+				p.selectedResidents[lpos] = res
+				res.matchedProgram = p.programID
+				lres.matchedProgram = ""
+				return lres // took place of another resident, return that resident
+			}
+		}
+	}
+	return nil // isnt on the rol of this program, didn't get matched
 }
 
 // Parse a resident's ROL
@@ -149,6 +200,7 @@ func ReadProgramsCSV(filename string) (map[string]*Program, error) {
 			name: record[1],
 			nPositions:  np,
 			rol:     parseIntRol(record[3]),
+			selectedResidents: make([]*Resident, 0 , np), // ADDED - initialises selectedResidents
 		}
 		
 	}
@@ -157,6 +209,7 @@ func ReadProgramsCSV(filename string) (map[string]*Program, error) {
 }
 
 // Example usage
+/*
 func main() {
 
     // read residents
@@ -182,3 +235,4 @@ func main() {
 
     fmt.Printf("\nNMD: %v",programs["NMD"])
 }
+*/

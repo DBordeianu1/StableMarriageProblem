@@ -114,7 +114,7 @@ public class Program {
 	public Resident leastPreferred(){
 		int worstRank = 0; // higher rank = worse, starting worst rank = 0
 		int worstResident = -1; // remembering worst resident
-		for (int i = (pointer - 1); i <= 0; i--){ // checking every matched resident 
+		for (int i = (pointer - 1); i >= 0; i--){ // checking every matched resident 
 			if (matchedResidents[i].getRank() > worstRank){ // only if the residents rank is worse than current worst
 				worstRank = matchedResidents[i].getRank();
 				worstResident = i;

@@ -5,24 +5,44 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 var unmatched = make(map[int]*Resident)
+var mu sync.Mutex
 
-func algorithm(r *Resident, programs map[string]*Program) {
-	for _, pID := range r.rol { // go through all programs on resident's rol
-		p := programs[pID]
-		attempt := p.addResident(r)
-		if attempt != nil { // took place of another resident
-			algorithm(attempt, programs) // place the other resident
-			return
-		}
-		if r.matchedProgram != "" { // took free place
-			return
-		}
+func offer(rid int, rolIdx int, residents map[int]*Resident, programs map[string]*Program, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	r := residents[rid]
+	if rolIdx >= len(r.rol) {
+		mu.Lock()
+		unmatched[r.residentID] = r
+		mu.Unlock()
+		return
+	} else {
+		evaluate(rid, rolIdx, r.rol[rolIdx], residents, programs, wg)
 	}
-	unmatched[r.residentID] = r // couldn't find a program for resident
-	return
+}
+
+func evaluate(rid int, rolIdx int, pid string, residents map[int]*Resident, programs map[string]*Program, wg *sync.WaitGroup) {
+	p := programs[pid]
+	r := residents[rid]
+	mu.Lock()
+	attempt := p.addResident(r)
+	mu.Unlock()
+	if attempt != nil { // took place of another resident
+		wg.Add(1)
+		go offer(attempt.residentID, 0, residents, programs, wg)
+	}
+	if r.matchedProgram != "" { // took free place
+		return
+	}
+	//rejected
+	wg.Add(1)
+	go offer(rid, rolIdx+1, residents, programs, wg)
 }
 
 func main() {
@@ -32,6 +52,10 @@ func main() {
 	var r, p string
 	fmt.Scanf("%s %s", &r, &p)
 	fmt.Print("\n")
+
+	//for synchronization
+	var wg sync.WaitGroup
+
 	residents, err := ReadResidentsCSV(r)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -53,8 +77,10 @@ func main() {
 	}
 	fmt.Print("\n")
 	for _, r := range residents {
-		algorithm(r, programs)
+		wg.Add(1)
+		go offer(r.residentID, 0, residents, programs, &wg)
 	}
+	wg.Wait()
 	fmt.Println("lastname,firstname,residentID,programID,name")
 	for _, r := range residents {
 		if r.matchedProgram != "" {

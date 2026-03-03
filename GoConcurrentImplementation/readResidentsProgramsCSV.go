@@ -28,14 +28,15 @@ type Resident struct {
 type Program struct {
 	programID  string
 	name       string
-	nPositions int   // number of positions available (quota)
-	rol        []int // program rank order list
+	nPositions int         // number of positions available (quota)
+	rol        []int       // program rank order list
+	rankMap    map[int]int // residentID rank position for O(1) lookup
 	// TO ADD: a data structure for the selected resident IDs
 	selectedResidents []*Resident // ADDED
 	mu                sync.Mutex
 }
 
-// ADDED - Find's resident's next availible program
+// ADDED - Finds resident's next availible program
 func (r Resident) find() string {
 	if r.current == len(r.rol) {
 		return ""
@@ -45,12 +46,11 @@ func (r Resident) find() string {
 
 // ADDED - Find resident's rank
 func (p *Program) rank(resID int) int {
-	for i, ID := range p.rol {
-		if ID == resID {
-			return i // returns resident's position in program's ROL, 0 being the most preferred
-		}
+	pos, ok := p.rankMap[resID]
+	if !ok {
+		return -1 // returns -1 if resident not in program's ROL
 	}
-	return -1 // returns -1 if resident not in program's ROL
+	return pos // returns resident's position in program's ROL, 0 being the most preferred
 }
 
 // ADDED - Find least preferred selected resident
@@ -185,11 +185,17 @@ func ReadProgramsCSV(filename string) (map[string]*Program, error) {
 			return nil, fmt.Errorf("invalid number at line %d: %w", i+1, err)
 		}
 
+		rol := parseIntRol(record[3])
+		rm := make(map[int]int, len(rol))
+		for i, id := range rol {
+			rm[id] = i
+		}
 		programs[record[0]] = &Program{
 			programID:         record[0],
 			name:              record[1],
 			nPositions:        np,
-			rol:               parseIntRol(record[3]),
+			rol:               rol,
+			rankMap:           rm,
 			selectedResidents: make([]*Resident, 0, np), // ADDED - initialises selectedResidents
 		}
 

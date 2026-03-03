@@ -59,9 +59,9 @@ func main() {
 		return
 	}
 
-	for _, p := range residents {
+	/*for _, p := range residents {
 		fmt.Printf("ID: %d, Name: %s %s, Rol: %v\n", p.residentID, p.firstname, p.lastname, p.rol)
-	}
+	}*/
 
 	programs, err := ReadProgramsCSV(p)
 	if err != nil {
@@ -69,9 +69,9 @@ func main() {
 		return
 	}
 
-	for _, p := range programs {
+	/*for _, p := range programs {
 		fmt.Printf("ID: %s, Name: %s, Number of pos: %d, Number of applicants: %d\n", p.programID, p.name, p.nPositions, len(p.rol))
-	}
+	}*/
 	fmt.Print("\n")
 	start := time.Now()
 	for _, r := range residents {

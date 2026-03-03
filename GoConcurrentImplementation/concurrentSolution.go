@@ -25,7 +25,6 @@ func offer(r *Resident, programs map[string]*Program, wg *sync.WaitGroup) {
 	} else {
 		evaluate(r, p, programs, wg)
 	}
-	return
 }
 
 func evaluate(r *Resident, p *Program, programs map[string]*Program, wg *sync.WaitGroup) {
@@ -37,11 +36,10 @@ func evaluate(r *Resident, p *Program, programs map[string]*Program, wg *sync.Wa
 		return
 	} else {
 		p.mu.Lock()
-		defer p.mu.Unlock()
 		if len(p.selectedResidents) < p.nPositions { // took free place
 			p.selectedResidents = append(p.selectedResidents, r)
 			r.matchedProgram = p.programID
-			fmt.Println(r.residentID, "took free place in", p.programID) //TESTING
+			p.mu.Unlock()
 			return
 		} else { // took place of another resident
 			lpos := p.leastPreferredPos()
@@ -50,17 +48,16 @@ func evaluate(r *Resident, p *Program, programs map[string]*Program, wg *sync.Wa
 				p.selectedResidents[lpos] = r
 				r.matchedProgram = p.programID
 				lres.matchedProgram = ""
-				fmt.Println(r.residentID, "took place in", p.programID, "instead of", lres.residentID) //TESTING
+				p.mu.Unlock()
 				wg.Add(1)
 				go offer(lres, programs, wg)
 				return
 			}
 		}
-		//mu.Unlock()
+		p.mu.Unlock()
 	}
 	wg.Add(1)
 	go offer(r, programs, wg)
-	return
 }
 
 func main() {
@@ -76,9 +73,9 @@ func main() {
 		return
 	}
 
-	for _, p := range residents {
+	/*for _, p := range residents {
 		fmt.Printf("ID: %d, Name: %s %s, Rol: %v\n", p.residentID, p.firstname, p.lastname, p.rol)
-	}
+	}*/
 
 	programs, err := ReadProgramsCSV(p)
 	if err != nil {
@@ -86,9 +83,9 @@ func main() {
 		return
 	}
 
-	for _, p := range programs {
+	/*for _, p := range programs {
 		fmt.Printf("ID: %s, Name: %s, Number of pos: %d, Number of applicants: %d\n", p.programID, p.name, p.nPositions, len(p.rol))
-	}
+	}*/
 	fmt.Print("\n")
 
 	//for synchronization

@@ -1,13 +1,13 @@
 lastname,firstname,residentID,programID,name
-Robert,Laurent,616,OBG,Obstetrics and Gynecology
 Williams,Salvatore,574,NRS,Neurosurgery
 Frederick,Rosalie,517,NRS,Neurosurgery
 Olson,Aspyn,403,HEP,Hematological Pathology
 Jarvis,Zev,226,MMI,Microbiology
 Medrano,Indie,126,NRS,Neurosurgery
+Tremmo,Emma,828,OBG,Obstetrics and Gynecology
 Paquet,Camille,913,HEP,Hematological Pathology
 Clown,Marie,773,OBG,Obstetrics and Gynecology
-Tremmo,Emma,828,OBG,Obstetrics and Gynecology
+Robert,Laurent,616,OBG,Obstetrics and Gynecology
 
 Number of unmatched residents : 1
 Number of positions available : 1

@@ -11,29 +11,40 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // The Resident data type
 type Resident struct {
-	residentID int
-	firstname string
-	lastname string
-	rol []string 			// resident rank order list
-	matchedProgram string	// will be "" for unmatched resident
+	residentID     int
+	firstname      string
+	lastname       string
+	rol            []string // resident rank order list
+	current        int
+	matchedProgram string // will be "" for unmatched resident
 }
 
 // The Program data type
 type Program struct {
-	programID string
+	programID  string
 	name       string
-	nPositions  int 		// number of positions available (quota)
-	rol []int  				// program rank order list
-	// TO ADD: a data structure for the selected resident IDs 
-	selectedResidents []*Resident // ADDED 
+	nPositions int   // number of positions available (quota)
+	rol        []int // program rank order list
+	// TO ADD: a data structure for the selected resident IDs
+	selectedResidents []*Resident // ADDED
+	mu                sync.Mutex
+}
+
+// ADDED - Find's resident's next availible program
+func (r Resident) find() string {
+	if r.current == len(r.rol) {
+		return ""
+	}
+	return r.rol[r.current]
 }
 
 // ADDED - Find resident's rank
-func (p Program) rank(resID int) int{
+func (p *Program) rank(resID int) int {
 	for i, ID := range p.rol {
 		if ID == resID {
 			return i // returns resident's position in program's ROL, 0 being the most preferred
@@ -43,38 +54,16 @@ func (p Program) rank(resID int) int{
 }
 
 // ADDED - Find least preferred selected resident
-func (p Program) leastPreferredPos() int{
-	worstRank := 0 // higher rank = worse, starting worst rank = 0
-	worstResident := -1 // remembering worst resident
-	for i, r := range p.selectedResidents { // checking every selected resident 
+func (p *Program) leastPreferredPos() int {
+	worstRank := 0                          // higher rank = worse, starting worst rank = 0
+	worstResident := -1                     // remembering worst resident
+	for i, r := range p.selectedResidents { // checking every selected resident
 		if p.rank(r.residentID) > worstRank { // only if the residents rank is worse than current worst
 			worstRank = p.rank(r.residentID)
 			worstResident = i
 		}
 	}
 	return worstResident // returns position of worst ranked resident in selectedResidents
-}
-
-// ADDED
-func (p *Program) addResident(res *Resident) *Resident { // the * in *Program took me an hour to bugfix help
-	rank := p.rank(res.residentID)
-	if rank != -1 { // chechking for member
-		if len(p.selectedResidents) < p.nPositions{ // if has not reached quota
-			p.selectedResidents = append(p.selectedResidents, res) 
-			res.matchedProgram = p.programID
-			return nil // took free place
-		} else { // if has reached quota
-			lpos := p.leastPreferredPos()
-			lres := p.selectedResidents[lpos]
-			if rank < p.rank(lres.residentID){
-				p.selectedResidents[lpos] = res
-				res.matchedProgram = p.programID
-				lres.matchedProgram = ""
-				return lres // took place of another resident, return that resident
-			}
-		}
-	}
-	return nil // isnt on the rol of this program, didn't get matched
 }
 
 // Parse a resident's ROL
@@ -103,8 +92,8 @@ func parseIntRol(s string) []int {
 	parts := strings.Split(s, ",")
 	var ints []int
 	for _, part := range parts {
-		pid,_:= strconv.Atoi(strings.TrimSpace(part))
-		ints= append(ints,pid) 
+		pid, _ := strconv.Atoi(strings.TrimSpace(part))
+		ints = append(ints, pid)
 	}
 	return ints
 }
@@ -149,10 +138,11 @@ func ReadResidentsCSV(filename string) (map[int]*Resident, error) {
 		}
 
 		residents[id] = &Resident{
-			residentID:        id,
-			firstname: record[1],
-			lastname:  record[2],
-			rol:     parseRol(record[3]),
+			residentID:     id,
+			firstname:      record[1],
+			lastname:       record[2],
+			rol:            parseRol(record[3]),
+			current:        0,
 			matchedProgram: "",
 		}
 	}
@@ -196,13 +186,13 @@ func ReadProgramsCSV(filename string) (map[string]*Program, error) {
 		}
 
 		programs[record[0]] = &Program{
-			programID: record[0],
-			name: record[1],
-			nPositions:  np,
-			rol:     parseIntRol(record[3]),
-			selectedResidents: make([]*Resident, 0 , np), // ADDED - initialises selectedResidents
+			programID:         record[0],
+			name:              record[1],
+			nPositions:        np,
+			rol:               parseIntRol(record[3]),
+			selectedResidents: make([]*Resident, 0, np), // ADDED - initialises selectedResidents
 		}
-		
+
 	}
 
 	return programs, nil
@@ -222,7 +212,7 @@ func main() {
 	for _, p := range residents {
 		fmt.Printf("ID: %d, Name: %s %s, Rol: %v\n", p.residentID, p.firstname, p.lastname, p.rol)
 	}
-	
+
 	programs, err := ReadProgramsCSV("programs4000.csv")
 	if err != nil {
 		fmt.Println("Error:", err)

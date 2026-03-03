@@ -6,22 +6,43 @@
 package main
 
 import "fmt"
+import "time"
 
 var unmatched = make(map[int]*Resident)
 
-func algorithm(r *Resident, programs map[string]*Program) {
-	for _, pID := range r.rol { // go through all programs on resident's rol
-		p := programs[pID]
-		attempt := p.addResident(r)
-		if attempt != nil { // took place of another resident
-			algorithm(attempt, programs) // place the other resident
-			return
-		}
-		if r.matchedProgram != "" { // took free place
+func offer(r *Resident, programs map[string]*Program) {
+	pID := r.find()
+	p := programs[pID]
+	if pID == ""{
+		unmatched[r.residentID] = r
+	} else {
+		evaluate(r, p, programs)
+	}
+	return
+}
+
+func evaluate(r *Resident, p *Program, programs map[string]*Program){ // the * in *Program took me an hour to bugfix help
+	r.current += 1
+	rank := p.rank(r.residentID)
+	if rank == -1 { // chechking for member
+		offer(r, programs)
+		return
+	} else if len(p.selectedResidents) < p.nPositions{
+		p.selectedResidents = append(p.selectedResidents, r) 
+		r.matchedProgram = p.programID
+		return
+	} else {
+		lpos := p.leastPreferredPos()
+		lres := p.selectedResidents[lpos]
+		if rank < p.rank(lres.residentID){
+			p.selectedResidents[lpos] = r
+			r.matchedProgram = p.programID
+			lres.matchedProgram = ""
+			offer(lres, programs)
 			return
 		}
 	}
-	unmatched[r.residentID] = r // couldn't find a program for resident
+	offer(r, programs)
 	return
 }
 
@@ -52,9 +73,11 @@ func main() {
 		fmt.Printf("ID: %s, Name: %s, Number of pos: %d, Number of applicants: %d\n", p.programID, p.name, p.nPositions, len(p.rol))
 	}
 	fmt.Print("\n")
+	start := time.Now()
 	for _, r := range residents {
-		algorithm(r, programs)
+		offer(r, programs)
 	}
+	end := time.Now()
 	fmt.Println("lastname,firstname,residentID,programID,name")
 	for _, r := range residents {
 		if r.matchedProgram != "" {
@@ -68,5 +91,6 @@ func main() {
 		totalAvalible += (cap(p.selectedResidents) - len(p.selectedResidents))
 	}
 	fmt.Println("Number of positions available :", totalAvalible)
-	fmt.Println("\nEND OF PROGRAM")
+	fmt.Printf("\nExecution time : %s", end.Sub(start))
+	fmt.Println("\n\nEND OF PROGRAM")
 }

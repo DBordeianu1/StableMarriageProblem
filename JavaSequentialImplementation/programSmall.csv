@@ -1,0 +1,5 @@
+id,name,numberOfPos,rol
+MMI,Microbiology,1,"[574,517,226,913,377,126]"
+HEP,Hematological Pathology,2,"[403,574,913,616,226]"
+NRS,Neurosurgery,4,"[574,517,403,828,226,126]"
+OBG,Obstetrics and Gynecology,3,"[616,828,773,913]"

@@ -8,41 +8,59 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 var unmatched = make(map[int]*Resident)
-var mu sync.Mutex
+var unmatchedMu sync.Mutex
 
-func offer(rid int, rolIdx int, residents map[int]*Resident, programs map[string]*Program, wg *sync.WaitGroup) {
+func offer(r *Resident, programs map[string]*Program, wg *sync.WaitGroup) {
 	defer wg.Done()
-
-	r := residents[rid]
-	if rolIdx >= len(r.rol) {
-		mu.Lock()
+	pID := r.find()
+	p := programs[pID]
+	if pID == "" {
+		unmatchedMu.Lock()
 		unmatched[r.residentID] = r
-		mu.Unlock()
-		return
+		unmatchedMu.Unlock()
 	} else {
-		evaluate(rid, rolIdx, r.rol[rolIdx], residents, programs, wg)
+		evaluate(r, p, programs, wg)
 	}
+	return
 }
 
-func evaluate(rid int, rolIdx int, pid string, residents map[int]*Resident, programs map[string]*Program, wg *sync.WaitGroup) {
-	p := programs[pid]
-	r := residents[rid]
-	mu.Lock()
-	attempt := p.addResident(r)
-	mu.Unlock()
-	if attempt != nil { // took place of another resident
+func evaluate(r *Resident, p *Program, programs map[string]*Program, wg *sync.WaitGroup) {
+	r.current += 1
+	rank := p.rank(r.residentID)
+	if rank == -1 { // chechking for member
 		wg.Add(1)
-		go offer(attempt.residentID, 0, residents, programs, wg)
-	}
-	if r.matchedProgram != "" { // took free place
+		go offer(r, programs, wg)
 		return
+	} else {
+		p.mu.Lock()
+		defer p.mu.Unlock()
+		if len(p.selectedResidents) < p.nPositions { // took free place
+			p.selectedResidents = append(p.selectedResidents, r)
+			r.matchedProgram = p.programID
+			fmt.Println(r.residentID, "took free place in", p.programID) //TESTING
+			return
+		} else { // took place of another resident
+			lpos := p.leastPreferredPos()
+			lres := p.selectedResidents[lpos]
+			if rank < p.rank(lres.residentID) {
+				p.selectedResidents[lpos] = r
+				r.matchedProgram = p.programID
+				lres.matchedProgram = ""
+				fmt.Println(r.residentID, "took place in", p.programID, "instead of", lres.residentID) //TESTING
+				wg.Add(1)
+				go offer(lres, programs, wg)
+				return
+			}
+		}
+		//mu.Unlock()
 	}
-	//rejected
 	wg.Add(1)
-	go offer(rid, rolIdx+1, residents, programs, wg)
+	go offer(r, programs, wg)
+	return
 }
 
 func main() {
@@ -52,10 +70,6 @@ func main() {
 	var r, p string
 	fmt.Scanf("%s %s", &r, &p)
 	fmt.Print("\n")
-
-	//for synchronization
-	var wg sync.WaitGroup
-
 	residents, err := ReadResidentsCSV(r)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -76,11 +90,17 @@ func main() {
 		fmt.Printf("ID: %s, Name: %s, Number of pos: %d, Number of applicants: %d\n", p.programID, p.name, p.nPositions, len(p.rol))
 	}
 	fmt.Print("\n")
+
+	//for synchronization
+	var wg sync.WaitGroup
+
+	start := time.Now()
 	for _, r := range residents {
 		wg.Add(1)
-		go offer(r.residentID, 0, residents, programs, &wg)
+		go offer(r, programs, &wg)
 	}
 	wg.Wait()
+	end := time.Now()
 	fmt.Println("lastname,firstname,residentID,programID,name")
 	for _, r := range residents {
 		if r.matchedProgram != "" {
@@ -94,5 +114,6 @@ func main() {
 		totalAvalible += (cap(p.selectedResidents) - len(p.selectedResidents))
 	}
 	fmt.Println("Number of positions available :", totalAvalible)
-	fmt.Println("\nEND OF PROGRAM")
+	fmt.Printf("\nExecution time : %s", end.Sub(start))
+	fmt.Println("\n\nEND OF PROGRAM")
 }

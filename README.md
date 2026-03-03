@@ -2,7 +2,7 @@
 
 A comparative implementation of the **Stable Marriage problem** across four programming paradigms, exploring how language design shapes problem-solving approaches.
 
-> The implementations use the Gale-Shapley algorithm
+> The implementations use the Gale-Shapley and McVitie-Wilson algorithms
 
 ---
 

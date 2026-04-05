@@ -27,22 +27,28 @@ Rank = 5
 */
 leastPreferred(ProgramID,ResidentIDsList,LeastPreferredResidentID,RankofThisResident):-
     program(ProgramID,_,_,Rol),
-    leastPreferredHelper(ProgramID,ResidentIDsList,none,0,LeastPreferredResidentID,RankofThisResident,Rol).
+    leastPreferredHelper(ProgramID,ResidentIDsList,none,0,LeastPreferredResidentID,RankofThisResident,Rol,1).
 
 % Went through the whole list so return the current resident's data
-leastPreferredHelper(_,_,CurrentID,CurrentRank,CurrentID,CurrentRank,[]):- !.
+leastPreferredHelper(_,_,CurrentID,CurrentRank,CurrentID,CurrentRank,[],_):- !.
 
 % The resident is not in the rol, so skip it
-leastPreferredHelper(ProgramID,ResidentIDsList,CurrentID,CurrentRank,LeastPreferredResidentID,RankofThisResident,[H|T]):-
+leastPreferredHelper(ProgramID,ResidentIDsList,CurrentID,CurrentRank,LeastPreferredResidentID,RankofThisResident,[H|T],Pos):-
     \+ member(H,ResidentIDsList),
-    leastPreferredHelper(ProgramID,ResidentIDsList,CurrentID,CurrentRank,LeastPreferredResidentID,RankofThisResident,T),!.
+    NextPos is Pos+1,
+    leastPreferredHelper(ProgramID,ResidentIDsList,CurrentID,CurrentRank,LeastPreferredResidentID,RankofThisResident,T,NextPos),!.
 
 % Resident is in the rol, update if needed
-leastPreferredHelper(ProgramID,ResidentIDsList,_,CurrentRank,LeastPreferredResidentID,RankofThisResident,[H|T]):-
+leastPreferredHelper(ProgramID,ResidentIDsList,_,CurrentRank,LeastPreferredResidentID,RankofThisResident,[H|T],Pos):-
     member(H,ResidentIDsList),
-    rankInProgram(H,ProgramID,HRank),
-    HRank>CurrentRank,
-    leastPreferredHelper(ProgramID,ResidentIDsList,H,HRank,LeastPreferredResidentID,RankofThisResident,T).
+    Pos>CurrentRank,!,
+    NextPos is Pos+1,
+    leastPreferredHelper(ProgramID,ResidentIDsList,H,Pos,LeastPreferredResidentID,RankofThisResident,T,NextPos).
+
+% if Pos<=CurrentRank
+leastPreferredHelper(ProgramID,ResidentIDsList,CurrentID,CurrentRank,LeastPreferredResidentID,RankofThisResident,[_|T],Pos):-
+    NextPos is Pos+1,
+    leastPreferredHelper(ProgramID,ResidentIDsList,CurrentID,CurrentRank,LeastPreferredResidentID,RankofThisResident,T,NextPos).
 
 /*
 matched verifies if a resident has already been matched to a program,

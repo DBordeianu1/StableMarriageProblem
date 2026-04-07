@@ -1,0 +1,16 @@
+gale_shapley.
+
+
+williams,salvatore,574,nrs,Neurosurgery
+frederick,rosalie,517,nrs,Neurosurgery
+medrano,indie,126,nrs,Neurosurgery
+tremmo,emma,828,obg,Obstetrics and Gynecology
+olson,aspyn,403,hep,Hematological Pathology
+jarvis,zev,226,mmi,Microbiology
+paquet,camille,913,hep,Hematological Pathology
+clown,marie,773,obg,Obstetrics and Gynecology
+robert,laurent,616,obg,Obstetrics and Gynecology
+tan,tom,377,XXX,NOT_MATCHED
+Number of unmatched residents: 1
+Number of positions available: 1
+true.

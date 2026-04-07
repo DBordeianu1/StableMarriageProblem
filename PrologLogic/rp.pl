@@ -12,4 +12,3 @@ program(nrs, "Neurosurgery",4, [574,517,403,828,226,126]).
 program(obg, "Obstetrics and Gynecology",3, [616,828,773,913]).
 program(mmi, "Microbiology",1, [574,517,226,913,377,126]).
 program(hep, "Hematological Pathology",2, [403,574,913,616,226]).
-

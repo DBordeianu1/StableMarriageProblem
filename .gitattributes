@@ -1,3 +1,5 @@
 *.pl linguist-language=Prolog
-*.pl linguist-detectable=true
+rp.pl linguist-detectable=true
+main.pl linguist-detectable=true
+tests.pl linguist-detectable=true
 rp4000.pl linguist-detectable=false

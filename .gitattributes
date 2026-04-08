@@ -1,2 +1,3 @@
 *.pl linguist-language=Prolog
 *.pl linguist-detectable=true
+rp400.pl linguist-detectable=false

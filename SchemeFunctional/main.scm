@@ -59,3 +59,34 @@ Returns the rank of a resident in the rol of a program, 0 being the 1st rank
 (else (+ 1 (rank-helper rid (cdr rrol))))
   )
   )
+
+#|
+Returns true if this program has been matched to a program
+
+These tests were provided by the professor, but not useful if gale-shapley not implemented yet:
+> (matched? 403 (gale-shapley RLIST PLIST '()))
+#t
+> (matched? 377 (gale-shapley RLIST PLIST '()))
+#f
+
+So here are some custom tests:
+> (matched? 403 '((574 "NRS") (913 "MMI") (403 "HEP")))
+#t
+> (matched? 377 '((403 "HEP") (574 "NRS") (913 "MMI")))
+#f
+|#
+(define (matched? rid matches)
+(cond ((null? matches) #f)
+((eq? rid (resID(car matches))) #t)
+(else (matched? rid (cdr matches)))
+  )
+  )
+
+#|
+Provides information of the matchings associated to a program
+
+> (get-match "HEP" (gale-shapely RLIST PLIST '()))
+("HEP" ((913 . 2) (403 . 0)))
+> (get-match "NRS" (gale-shapely RLIST PLIST '()))
+("NRS" ((126 . 5) (517 . 1) (574 . 0)))
+|#

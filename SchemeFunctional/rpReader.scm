@@ -1,4 +1,5 @@
 #lang scheme
+(provide read-residents read-programs)
 (define (read-f filename) (call-with-input-file filename
 (lambda (input-port)
 (let loop ((line (read-line input-port)))

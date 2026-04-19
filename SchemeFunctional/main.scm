@@ -62,7 +62,7 @@ Returns the rank of a resident in the rol of a program, 0 being the 1st rank
   )
 
 #|
-Returns true if this program has been matched to a program
+Returns true if this resident has been matched to a program
 
 These tests were provided by the Professor, but not useful if gale-shapley not implemented yet:
 > (matched? 403 (gale-shapley RLIST PLIST '()))
@@ -155,15 +155,10 @@ In order to implement the McVitie-Wilson algorithm, we will need to implement of
 (offer (car RLIST) RLIST PLIST '())))
 (("HEP" ((403 . 0))) ("NRS" ((517 . 1) (574 . 0))))
 |#
-(define (offer-helper resRol rinfo rlist plist matches)
-  (cond ((null? resRol) matches)
-        (else 
-            (evaluate rinfo (get-program-info (car resRol) plist) rlist plist matches))
-    )
-  )
-
 (define (offer rinfo rlist plist matches)
-(offer-helper (resRol rinfo) rinfo rlist plist matches)
+  (cond ((null? (resRol rinfo)) matches)
+        (else (evaluate rinfo (get-program-info (car (resRol rinfo)) plist) rlist plist matches))
+    )
   )
 
 #|
@@ -178,9 +173,9 @@ In order to implement the McVitie-Wilson algorithm, we will need to implement ev
 (("HEP" ((226 . 4) (403 . 0))) ("NRS" ((517 . 1) (574 . 0))))
 > (evaluate (get-resident-info 913 RLIST) (get-program-info "HEP"
 PLIST) RLIST PLIST M2)
-(("MMI" ((226 . 2))) ("HEP" ((913 . 2) (403 . 0)))
-("NRS" ((517 . 1) (574 . 0))))
+(("MMI" ((226 . 2))) ("HEP" ((913 . 2) (403 . 0)))("NRS" ((517 . 1) (574 . 0))))
 |#
+; Helper for update-match to check if program is in the current matches
 (define (in-matches? pid matches)
   (cond ((null? matches) #f)
         ((string=? pid (caar matches)) #t)
@@ -188,6 +183,8 @@ PLIST) RLIST PLIST M2)
     )
   )
 
+; Helper for evaluate to append the unexisting program, if applicable, at the front or
+; to modify it directly (i.e. keeping order)
 (define (update-match updated-entry matches)
   (if (in-matches? (car updated-entry) matches)
   (cond ((string=? (car updated-entry) (caar matches))
@@ -198,8 +195,10 @@ PLIST) RLIST PLIST M2)
   )
   )
 
+; To get the least preferred resident from the programs' current matches
 (define (least-preferred L) (caadr L))
 
+; Actual implementation of evaluate
 (define (evaluate rinfo pinfo rlist plist matches)
   (cond ((= (rank (resID rinfo) pinfo) -1) matches)
 

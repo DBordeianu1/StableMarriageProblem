@@ -196,6 +196,7 @@ PLIST) RLIST PLIST M2)
   )
 
 ; To get the least preferred resident from the programs' current matches
+; L is a list of this type: ("NRS" ((126 . 5) (517 . 1) (574 . 0)))
 (define (least-preferred L) (caadr L))
 
 ; Actual implementation of evaluate
@@ -215,6 +216,7 @@ PLIST) RLIST PLIST M2)
                    (entry-with-r (add-resident-to-match (cons (resID rinfo) (rank (resID rinfo) pinfo)) entry-without-r-prime))
                    (updated-matches (update-match entry-with-r matches)))
               (offer (get-resident-info r-prime rlist) rlist plist updated-matches)))
+    
     (else matches)
             )
     )

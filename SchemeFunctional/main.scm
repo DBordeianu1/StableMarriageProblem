@@ -235,16 +235,17 @@ PLIST) RLIST PLIST M2)
 |#
 (define (gale-shapley rlist plist matches)
   (cond ((null? rlist) matches)
-  (else ((offer (car rlist) rlist plist matches)
-  (gale-shapley (cdr rlist) plist matches))))
-  )
+  (else (gale-shapley (cdr list) plist (offer (car rlist) rlist plist matches)))
+  ))
 
 #|
 |#
 (define (get-not-matched-list rlist matches)
   (cond ((null? rlist) '())
-        ((not (matched? (caar rlist) matches))
-         (cons (car rlist) (get-not-matched-list (cdr rlist) matches))))
+        ((not (matched? (resID (car rlist)) matches))
+         (cons (car rlist) (get-not-matched-list (cdr rlist) matches)))
+        (else (get-not-matched-list (cdr rlist) matches))
+        )
   )
 
 #|

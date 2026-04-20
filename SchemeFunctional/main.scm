@@ -230,6 +230,7 @@ PLIST) RLIST PLIST M2)
     )
 
 #|
+core implementation of the McVitie-Wilson algorithm, calls offer on every resident in rlist
 |#
 (define (gale-shapley rlist plist matches)
   (cond ((null? rlist) matches)
@@ -237,6 +238,7 @@ PLIST) RLIST PLIST M2)
   ))
 
 #|
+returns a list of residents that aren't matched to a program
 |#
 (define (get-not-matched-list rlist matches)
   (cond ((null? rlist) '())
@@ -247,6 +249,7 @@ PLIST) RLIST PLIST M2)
   )
 
 #|
+displays properly formatted info on residents that aren't matched
 |#
 (define (display-not-matched not-matched-list rlist)
   (for-each (lambda(m)
@@ -262,6 +265,7 @@ PLIST) RLIST PLIST M2)
   )
 
 #|
+displays properly formatted info on residents that are matched
 |#
 (define (display-program-matches pmatches rlist plist)
   (for-each (lambda(m)
@@ -279,6 +283,7 @@ PLIST) RLIST PLIST M2)
   )
 
 #|
+finds the total amout of remaining avalible positions of all the programs 
 |#
 (define (get-total-available-positions matches plist)
   (let ((count 0)) '())
@@ -289,6 +294,7 @@ PLIST) RLIST PLIST M2)
   )
 
 #|
+displaying method given to us
 |#
 (define (gale-shapley-print rlist plist)
   (let* ((matches (gale-shapley rlist plist '()))

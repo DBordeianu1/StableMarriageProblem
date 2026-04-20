@@ -237,12 +237,13 @@ PLIST) RLIST PLIST M2)
     )
 
 #|
-core implementation of the McVitie-Wilson algorithm, calls offer on every resident in rlist
+Core implementation of the McVitie-Wilson algorithm, calls offer on every resident in rlist
 |#
 (define (gale-shapley rlist plist matches)
   (gale-shapley-helper rlist rlist plist matches)
   )
 
+; Gale-Shapley helper
 (define (gale-shapley-helper remaining rlist plist matches)
   (cond ((null? remaining) matches)
         ((matched? (resID (car remaining)) matches) (gale-shapley-helper (cdr remaining) rlist plist matches))
@@ -250,7 +251,7 @@ core implementation of the McVitie-Wilson algorithm, calls offer on every reside
   ))
 
 #|
-returns a list of residents that aren't matched to a program
+Returns a list of residents that aren't matched to a program
 |#
 (define (get-not-matched-list rlist matches)
   (cond ((null? rlist) '())
@@ -261,7 +262,7 @@ returns a list of residents that aren't matched to a program
   )
 
 #|
-displays properly formatted info on residents that aren't matched
+Displays properly formatted info on residents that aren't matched
 |#
 (define (display-not-matched not-matched-list rlist)
   (for-each (lambda(m)
@@ -277,7 +278,7 @@ displays properly formatted info on residents that aren't matched
   )
 
 #|
-displays properly formatted info on residents that are matched
+Displays properly formatted info on residents that are matched
 |#
 (define (display-program-matches pmatches rlist plist)
   (for-each (lambda(m)
@@ -296,7 +297,7 @@ displays properly formatted info on residents that are matched
 
 
 #|
-finds the total amout of remaining avalible positions of all the programs 
+Finds the total amout of remaining avalible positions of all the programs 
 |#
 (define (get-total-available-positions matches plist)
 (cond ((null? plist) 0)
@@ -312,6 +313,7 @@ finds the total amout of remaining avalible positions of all the programs
 #|
 displaying method given to us
 
+For Small output:
 > (gale-shapley-print RLIST PLIST)
 Clown,Marie,773,OBG,Obstetrics and Gynecology
 Frederick,Rosalie,517,NRS,Neurosurgery

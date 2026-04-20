@@ -110,9 +110,9 @@ So here are some custom tests:
 Provides information of the matchings associated to a program
 
 These tests were provided by the Professor, but not useful if gale-shapley not implemented yet:
-> (get-match "HEP" (gale-shapely RLIST PLIST '()))
+> (get-match "HEP" (gale-shapley RLIST PLIST '()))
 ("HEP" ((913 . 2) (403 . 0)))
-> (get-match "NRS" (gale-shapely RLIST PLIST '()))
+> (get-match "NRS" (gale-shapley RLIST PLIST '()))
 ("NRS" ((126 . 5) (517 . 1) (574 . 0)))
 
 So here are some custom tests:
@@ -132,7 +132,7 @@ So here are some custom tests:
 Add a resident (+ its rank) to the list of residents matched to a program
 
 Test provided by the Professor, but not useful if gale-shapley not implemented yet:
-> (add-resident-to-match (cons 828 3)(get-match "NRS" (gale-shapely RLIST PLIST '())))
+> (add-resident-to-match (cons 828 3)(get-match "NRS" (gale-shapley RLIST PLIST '())))
 ("NRS" ((126 . 5) (828 . 3) (517 . 1) (574 . 0)))
 
 So here is a custom test:
@@ -186,7 +186,9 @@ In order to implement the McVitie-Wilson algorithm, we will need to implement ev
 (("HEP" ((226 . 4) (403 . 0))) ("NRS" ((517 . 1) (574 . 0))))
 > (evaluate (get-resident-info 913 RLIST) (get-program-info "HEP"
 PLIST) RLIST PLIST M2)
-(("MMI" ((226 . 2))) ("HEP" ((913 . 2) (403 . 0)))("NRS" ((517 . 1) (574 . 0))))
+(("HEP" ((913 . 2) (403 . 0))) ("NRS" ((226 . 4) (517 . 1) (574 . 0))))
+
+Note: the last test's output does not match the one provided by the Professor, but is the CORRECT one as NRS quota is 4
 |#
 ; Helper for update-match to check if program is in the current matches
 (define (in-matches? pid matches)
@@ -311,7 +313,7 @@ Finds the total amout of remaining avalible positions of all the programs
 
 
 #|
-displaying method given to us
+Displaying method given to us
 
 For Small output:
 > (gale-shapley-print RLIST PLIST)

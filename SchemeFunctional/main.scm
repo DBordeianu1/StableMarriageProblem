@@ -1,4 +1,11 @@
 #lang scheme
+#|
+Project CSI2120/CSI2520
+Winter 2026
+
+Completed by Roman Solomakha St. No. 300422752 and Daniela Bordeianu St. No. 300435411
+|#
+
 (require "rpReader.scm")
 (define PLIST (read-programs "programSmall.csv"))
 (define RLIST (read-residents "residentSmall.csv"))
@@ -17,6 +24,9 @@
 
 ; Find the id of a program
 (define (programID L) (car L) )
+
+; Find the first name of a resident by resident id
+()
 
 #|
 Returns the information associated to a resident from the list of residents
@@ -183,7 +193,7 @@ PLIST) RLIST PLIST M2)
     )
   )
 
-; Helper for evaluate to append the unexisting program, if applicable, at the front or
+; Helper for evaluate to append the nonexistent program, if applicable, at the front or
 ; to modify it directly (i.e. keeping order)
 (define (update-match updated-entry matches)
   (if (in-matches? (car updated-entry) matches)
@@ -220,4 +230,55 @@ PLIST) RLIST PLIST M2)
     (else matches)
             )
     )
-  
+
+#|
+|#
+(define (gale-shapley rlist plist matches)
+  (cond ((null? rlist) matches)
+  (else ((offer (car rlist) rlist plist matches)
+  (gale-shapley (cdr rlist) plist matches))))
+  )
+
+#|
+|#
+(define (get-not-matched-list rlist matches)
+  (cond ((null? rlist) '())
+        ((not (matched? (caar rlist) matches))
+         (cons (car rlist) (get-not-matched-list (cdr rlist) matches))))
+  )
+
+#|
+|#
+
+
+#|
+|#
+(define (display-program-matches pmatches rlist plist)
+  (for-each (lambda(m)
+  (display )
+  (display ",")
+  (display )
+  (display ",")
+  (display )
+  (display ",")
+  (display )
+  (display ",")
+  (display ))
+  (cdr pmatches))
+  ;? (caadr m)
+  )
+
+#|
+|#
+(define (gale-shapley-print rlist plist)
+  (let* ((matches (gale-shapley rlist plist '()))
+         (not-matched-list (get-not-matched-list rlist matches)))
+    (for-each (lambda(m)
+         (display-program-matches m rlist plist)) matches)
+    (display-not-matched not-matched-list rlist)
+    (display "Number of unmatched residents: ")
+    (display (length not-matched-list)) (newline)
+    (display "Number of positions available: ")
+    (display (get-total-available-positions matches plist))
+    (newline))
+  )

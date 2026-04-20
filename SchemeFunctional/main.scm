@@ -14,7 +14,7 @@ Completed by Roman Solomakha St. No. 300422752 and Daniela Bordeianu St. No. 300
 (define (resRol L) (cadddr L))
 
 ; Returns the list of the program
-(define (programRol L) (cadddr L))
+(define (programRol L) (cdddr L))
 
 ; define quota as well
 (define (get-quota L) (caddr L))
@@ -286,12 +286,11 @@ displays properly formatted info on residents that are matched
 finds the total amout of remaining avalible positions of all the programs 
 |#
 (define (get-total-available-positions matches plist)
-  (let ((count 0)) '())
-  (for-each (lambda(m)
-  (+ count (-(caddr(get-program-info (car m) plist))(length (cdr m)))))
-  (cdr matches))
-  count
-  )
+  (if (null? matches)
+      0
+      (+ (- (get-quota (get-program-info (caar matches) plist))
+            (length (cadar matches)))
+         (get-total-available-positions (cdr matches) plist))))
 
 #|
 displaying method given to us

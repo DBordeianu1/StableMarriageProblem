@@ -233,7 +233,7 @@ PLIST) RLIST PLIST M2)
 |#
 (define (gale-shapley rlist plist matches)
   (cond ((null? rlist) matches)
-  (else (gale-shapley (cdr list) plist (offer (car rlist) rlist plist matches)))
+  (else (gale-shapley (cdr rlist) plist (offer (car rlist) rlist plist matches)))
   ))
 
 #|
@@ -248,7 +248,18 @@ PLIST) RLIST PLIST M2)
 
 #|
 |#
-
+(define (display-not-matched not-matched-list rlist)
+  (for-each (lambda(m)
+  (display (cadr(get-resident-info (car m) rlist)))
+  (display ",")
+  (display (caddr(get-resident-info (car m) rlist)))
+  (display ",")
+  (display (car m))
+  (display ",")
+  (display "XXX,NOT_MATCHED")
+  (newline))
+  (not-matched-list))
+  )
 
 #|
 |#
@@ -265,6 +276,16 @@ PLIST) RLIST PLIST M2)
   (display (cadr(get-program-info (car pmatches) plist)))
   (newline))
   (cdr pmatches))
+  )
+
+#|
+|#
+(define (get-total-available-positions matches plist)
+  (let ((count 0)) '())
+  (for-each (lambda(m)
+  (+ count (-(caddr(get-program-info (car m) plist))(length (cdr m)))))
+  (cdr matches))
+  count
   )
 
 #|

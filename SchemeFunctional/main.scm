@@ -25,8 +25,6 @@ Completed by Roman Solomakha St. No. 300422752 and Daniela Bordeianu St. No. 300
 ; Find the id of a program
 (define (programID L) (car L) )
 
-; Find the first name of a resident by resident id
-()
 
 #|
 Returns the information associated to a resident from the list of residents
@@ -256,15 +254,16 @@ PLIST) RLIST PLIST M2)
 |#
 (define (display-program-matches pmatches rlist plist)
   (for-each (lambda(m)
-  (display (cadr(get-resident-info (caar m) rlist)))
+  (display (cadr(get-resident-info (car m) rlist)))
   (display ",")
-  (display (caddr(get-resident-info (caar m) rlist)))
+  (display (caddr(get-resident-info (car m) rlist)))
   (display ",")
-  (display (caar m))
+  (display (car m))
   (display ",")
   (display (car pmatches))
   (display ",")
-  (display (cadr(get-program-info (car pmatches) plist))))
+  (display (cadr(get-program-info (car pmatches) plist)))
+  (newline))
   (cdr pmatches))
   )
 

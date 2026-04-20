@@ -10,20 +10,24 @@ Completed by Roman Solomakha St. No. 300422752 and Daniela Bordeianu St. No. 300
 (define PLIST (read-programs "programSmall.csv"))
 (define RLIST (read-residents "residentSmall.csv"))
 
+;;; Remember, these are for fetching data fromRLIST and PLIST:
+
+;; For residents, they have this format: (828 "Emma" "Tremmo" ("OBG" "NRS"))
 ; Returns the list of programs for a resident
 (define (resRol L) (cadddr L))
-
-; Returns the list of the program
-(define (programRol L) (cdddr L))
-
-; define quota as well
-(define (get-quota L) (caddr L))
 
 ; Find the id of a resident
 (define (resID L) (car L) )
 
+;; For programs, they have this format: ("HEP" "Hematological Pathology" 2 (403 574 913 616 226))
+; Returns the list of the program
+(define (programRol L) (cadddr L))
+
+; define quota as well
+(define (get-quota L) (caddr L))
+
 ; Find the id of a program
-(define (programID L) (car L) )
+(define (programID L) (car L))
 
 
 #|
@@ -137,7 +141,8 @@ So here is a custom test:
 |#
 ; Helper
 (define (append-desc-rank pair match-no-car)
-  (cond ((< (cdar match-no-car) (cdr pair)) (cons pair match-no-car))
+  (cond ((null? match-no-car) (list pair))
+        ((< (cdar match-no-car) (cdr pair)) (cons pair match-no-car))
         (else (cons (car match-no-car) (append-desc-rank pair (cdr match-no-car))))
     )
   )
@@ -209,8 +214,9 @@ PLIST) RLIST PLIST M2)
 
 ; Actual implementation of evaluate
 (define (evaluate rinfo pinfo rlist plist matches)
-  (cond ((= (rank (resID rinfo) pinfo) -1) matches)
-
+  (cond ((= (rank (resID rinfo) pinfo) -1)
+         (offer (list (resID rinfo) "" "" (cdr (resRol rinfo))) rlist plist matches))
+         
     ((null? (cdr (get-match (programID pinfo) matches)))
               (update-match (add-resident-to-match (cons (resID rinfo) (rank (resID rinfo) pinfo)) (get-match (programID pinfo) matches)) matches)
               )
@@ -223,9 +229,10 @@ PLIST) RLIST PLIST M2)
                    (entry-without-r-prime (list (programID pinfo) (cdadr (get-match (programID pinfo) matches))))
                    (entry-with-r (add-resident-to-match (cons (resID rinfo) (rank (resID rinfo) pinfo)) entry-without-r-prime))
                    (updated-matches (update-match entry-with-r matches)))
-              (offer (get-resident-info r-prime rlist) rlist plist updated-matches)))
+              (offer (list r-prime "" "" (cdr (member (programID pinfo) (resRol (get-resident-info r-prime rlist))))) rlist plist updated-matches)
+              ))
     
-    (else matches)
+    (else (offer (list (resID rinfo) "" "" (cdr (resRol rinfo))) rlist plist matches))
             )
     )
 
@@ -233,8 +240,13 @@ PLIST) RLIST PLIST M2)
 core implementation of the McVitie-Wilson algorithm, calls offer on every resident in rlist
 |#
 (define (gale-shapley rlist plist matches)
-  (cond ((null? rlist) matches)
-  (else (gale-shapley (cdr rlist) plist (offer (car rlist) rlist plist matches)))
+  (gale-shapley-helper rlist rlist plist matches)
+  )
+
+(define (gale-shapley-helper remaining rlist plist matches)
+  (cond ((null? remaining) matches)
+        ((matched? (resID (car remaining)) matches) (gale-shapley-helper (cdr remaining) rlist plist matches))
+  (else (gale-shapley-helper (cdr remaining) rlist plist (offer (car remaining) rlist plist matches)))
   ))
 
 #|
@@ -261,7 +273,7 @@ displays properly formatted info on residents that aren't matched
   (display ",")
   (display "XXX,NOT_MATCHED")
   (newline))
-  (not-matched-list))
+  not-matched-list)
   )
 
 #|
@@ -279,21 +291,40 @@ displays properly formatted info on residents that are matched
   (display ",")
   (display (cadr(get-program-info (car pmatches) plist)))
   (newline))
-  (cdr pmatches))
+  (cadr pmatches))
   )
+
 
 #|
 finds the total amout of remaining avalible positions of all the programs 
 |#
 (define (get-total-available-positions matches plist)
-  (if (null? matches)
-      0
-      (+ (- (get-quota (get-program-info (caar matches) plist))
-            (length (cadar matches)))
-         (get-total-available-positions (cdr matches) plist))))
+(cond ((null? plist) 0)
+      (else (let ((m (get-match (programID (car plist)) matches)))
+              (+ (- (get-quota (car plist))
+                  (if (null? (cdr m)) 0 (length(cadr m))))
+               (get-total-available-positions matches (cdr plist)))))
+      )
+  )
+
+
 
 #|
 displaying method given to us
+
+> (gale-shapley-print RLIST PLIST)
+Clown,Marie,773,OBG,Obstetrics and Gynecology
+Frederick,Rosalie,517,NRS,Neurosurgery
+Jarvis,Zev,226,MMI,Microbiology
+Medrano,Indie,126,NRS,Neurosurgery
+Olson,Aspyn,403,HEP,Hematological Pathology
+Paquet,Camille,913,HEP,Hematological Pathology
+Robert,Laurent,616,OBG,Obstetrics and Gynecology
+Tan,Tom,377,XXX,NOT_MATCHED
+Tremmo,Emma,828,OBG,Obstetrics and Gynecology
+Williams,Salvatore,574,NRS,Neurosurgery
+Number of unmatched residents: 1
+Number of positions available: 1
 |#
 (define (gale-shapley-print rlist plist)
   (let* ((matches (gale-shapley rlist plist '()))

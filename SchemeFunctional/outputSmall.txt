@@ -1,0 +1,12 @@
+Clown,Marie,773,OBG,Obstetrics and Gynecology
+Tremmo,Emma,828,OBG,Obstetrics and Gynecology
+Robert,Laurent,616,OBG,Obstetrics and Gynecology
+Jarvis,Zev,226,MMI,Microbiology
+Paquet,Camille,913,HEP,Hematological Pathology
+Olson,Aspyn,403,HEP,Hematological Pathology
+Medrano,Indie,126,NRS,Neurosurgery
+Frederick,Rosalie,517,NRS,Neurosurgery
+Williams,Salvatore,574,NRS,Neurosurgery
+Tan,Tom,377,XXX,NOT_MATCHED
+Number of unmatched residents: 1
+Number of positions available: 1

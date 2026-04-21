@@ -10,7 +10,7 @@ Completed by Roman Solomakha St. No. 300422752 and Daniela Bordeianu St. No. 300
 (define PLIST (read-programs "programSmall.csv"))
 (define RLIST (read-residents "residentSmall.csv"))
 
-;;; Remember, these are for fetching data fromRLIST and PLIST:
+;;; Remember, these are for fetching data from RLIST and PLIST:
 
 ;; For residents, they have this format: (828 "Emma" "Tremmo" ("OBG" "NRS"))
 ; Returns the list of programs for a resident
@@ -268,9 +268,9 @@ Displays properly formatted info on residents that aren't matched
 |#
 (define (display-not-matched not-matched-list rlist)
   (for-each (lambda(m)
-  (display (cadr(get-resident-info (car m) rlist)))
-  (display ",")
   (display (caddr(get-resident-info (car m) rlist)))
+  (display ",")
+  (display (cadr(get-resident-info (car m) rlist)))
   (display ",")
   (display (car m))
   (display ",")
@@ -284,9 +284,9 @@ Displays properly formatted info on residents that are matched
 |#
 (define (display-program-matches pmatches rlist plist)
   (for-each (lambda(m)
-  (display (cadr(get-resident-info (car m) rlist)))
-  (display ",")
   (display (caddr(get-resident-info (car m) rlist)))
+  (display ",")
+  (display (cadr(get-resident-info (car m) rlist)))
   (display ",")
   (display (car m))
   (display ",")

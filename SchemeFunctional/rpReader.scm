@@ -16,7 +16,7 @@
 
 (define (clean-line str)
   (list->string
-   (filter (lambda (c) (not (or (char=? c #\") (char=? c #\[) (char=? c #\]) )))
+   (filter (lambda (c) (not (or (char=? c #\") (char=? c #\[) (char=? c #\]) (char=? c #\return) )))
            (string->list str))))
 
 (define (read-residents filename)
